@@ -1,0 +1,30 @@
+logging:
+  level:
+    .: error
+    org.springframework: ERROR
+    com.example: INFO
+
+spring:
+  profiles:
+    active: "dev"
+  main:
+    banner-mode: "off"
+
+server:
+  email: srinathworks@gmail.com
+
+---
+spring:
+  profiles: dev
+amqp.host:
+  url: localhost
+  virtualhost: virtualhostforhook
+  #port 0 is no port -- must have virtual host in that case
+  port: 5672
+  username: guest
+  password: guest
+  connection:
+    #cloudamqp.com FREE VERSION ALLOW 20 / KEEPING ONE FOR ADMIN
+    limit: 18
+    queue:
+      fb: FBRAW
