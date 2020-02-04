@@ -10,9 +10,9 @@ public class Producer {
     AmqpTemplate amqpTemplate;
 
     public void produce(Object object) {
-        //simulate high rate of msgs in to queue
-        for (int i = 0; i < 100; i++) {
-            amqpTemplate.convertAndSend(object);
-        }
+
+        amqpTemplate.convertAndSend(object);
+
+
     }
 }

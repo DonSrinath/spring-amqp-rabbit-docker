@@ -2,20 +2,18 @@ package com.example.springamqp.amqp;
 
 import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.core.AmqpTemplate;
-import org.springframework.amqp.core.AsyncAmqpTemplate;
 import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.rabbit.AsyncRabbitTemplate;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.task.TaskExecutor;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 @Configuration
+@RefreshScope
 public class AMQPConfiguration {
 
     @Value("${amqp.host.url}")
@@ -50,10 +48,10 @@ public class AMQPConfiguration {
         return connectionFactory;
     }
 
-    @Bean
-    public AmqpAdmin amqpAdmin() {
-        return new RabbitAdmin(connectionFactory());
-    }
+//    @Bean
+//    public AmqpAdmin amqpAdmin() {
+//        return new RabbitAdmin(connectionFactory());
+//    }
 
     @Bean
     public AmqpTemplate amqpTemplate() {
@@ -72,17 +70,6 @@ public class AMQPConfiguration {
     // Every queue is bound to the default direct exchange
     public Queue helloWorldQueue() {
         return new Queue(this.helloWorldQueueName);
-    }
-
-    @Bean
-    public TaskExecutor threadPoolTaskExecutor() {
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-        executor.setCorePoolSize(2);
-        executor.setMaxPoolSize(4);
-        executor.setQueueCapacity(10);
-        executor.setThreadNamePrefix("fb_msg_processing_executor_thread");
-        executor.initialize();
-        return executor;
     }
 
 }

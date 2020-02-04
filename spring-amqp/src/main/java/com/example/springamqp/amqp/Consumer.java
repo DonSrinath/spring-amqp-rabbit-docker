@@ -6,7 +6,6 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.task.TaskExecutor;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -21,7 +20,7 @@ public class Consumer {
     Queue queue;
 
     @Autowired
-    ThreadPooledMessageListener threadPooledMessageListener;
+    SequentialMessageListener sequentialMessageListener;
 
     @PostConstruct
     public void init() {
@@ -29,43 +28,18 @@ public class Consumer {
         //CURRENTLY ON MESSAGE BEING CALLED FOR MSGS IN THE QUEUE IS PROCESSOR IS BLOCKED ; WAITING
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer(connectionFactory);
         container.setQueues(queue);
-        container.setMessageListener(threadPooledMessageListener);
+        container.setMessageListener(sequentialMessageListener);
         container.start();
 
     }
 }
 
 @Service
-class ThreadPooledMessageListener implements MessageListener {
-    @Autowired
-    TaskExecutor threadPoolTaskExecutor;
-
+class SequentialMessageListener implements MessageListener {
     AtomicInteger processedCount = new AtomicInteger();
-
     @Override
     public void onMessage(Message message) {
-        System.out.println("processed<<" + processedCount.incrementAndGet());
-        threadPoolTaskExecutor.execute(new MessageProcessor(message));
-
+        System.out.println("processed<<" + processedCount.incrementAndGet() + "|" + message);
     }
 }
 
-class MessageProcessor implements Runnable {
-    Message processingMessage;
-
-    public MessageProcessor(Message message) {
-        this.processingMessage = message;
-    }
-
-    @Override
-    public void run() {
-        System.out.println("================================" + Thread.currentThread().getName());
-        System.out.println(processingMessage);
-        System.out.println("================================");
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-}
